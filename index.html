@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SENSIOBMAX - VUA BÁN FILE 2026</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;900&display=swap');
+        
+        body { background: #010409; font-family: 'Segoe UI', sans-serif; color: white; overflow: hidden; height: 100vh; }
+        .font-cyber { font-family: 'Orbitron', sans-serif; }
+        
+        /* Hiệu ứng kính mờ (Glassmorphism) */
+        .glass { background: rgba(13, 17, 23, 0.85); backdrop-filter: blur(25px); border: 1px solid rgba(59, 130, 246, 0.15); }
+        .neon-border { border: 1px solid #3b82f6; box-shadow: 0 0 15px rgba(59, 130, 246, 0.2); }
+        
+        /* Cấu trúc Popup */
+        .popup { position: fixed; inset: 0; background: rgba(0,0,0,0.98); z-index: 1000; display: flex; align-items: center; justify-content: center; transition: 0.3s; }
+        .hidden { display: none !important; }
+        
+        /* Hiệu ứng hạt bụi nền */
+        #particles-js { position: fixed; width: 100%; height: 100%; z-index: -1; }
+        
+        /* Chữ chạy (Marquee) */
+        .marquee-container { background: rgba(59, 130, 246, 0.1); border-bottom: 1px solid rgba(59, 130, 246, 0.3); overflow: hidden; white-space: nowrap; }
+        .marquee-text { display: inline-block; animation: marquee 25s linear infinite; font-size: 10px; font-weight: 900; color: #60a5fa; text-transform: uppercase; padding: 12px 0; }
+        @keyframes marquee { 0% { transform: translate(100%, 0); } 100% { transform: translate(-100%, 0); } }
+
+        /* Thông báo khách mua ở dưới màn hình */
+        #buy-toast { position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%); z-index: 999; transition: 0.5s; opacity: 0; pointer-events: none; }
+        .show-toast { opacity: 1 !important; bottom: 105px !important; }
+
+        /* Nút bấm */
+        .btn-click:active { transform: scale(0.92); transition: 0.1s; }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #3b82f6; border-radius: 10px; }
+
+        /* Hiệu ứng cho Card Sản phẩm */
+        .product-card { transition: 0.3s; border-left-width: 4px; }
+        .product-card:hover { background: rgba(59, 130, 246, 0.05); transform: translateX(5px); }
+    </style>
+</head>
+<body>
+
+    <div id="particles-js"></div>
+
+    <div id="buy-toast" class="glass px-6 py-3 rounded-full border border-blue-500/50 flex items-center gap-3 shadow-2xl">
+        <div class="relative flex h-3 w-3">
+            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+            <span class="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
+        </div>
+        <p id="toast-text" class="text-[9px] font-black uppercase italic text-white tracking-wider"></p>
+    </div>
+
+    <div id="auth-screen" class="popup">
+        <div id="auth-box" class="glass w-[90%] max-w-[380px] p-8 rounded-[3rem] text-center neon-border">
+            <h2 id="auth-title" class="font-cyber text-blue-500 font-black mb-2 uppercase text-xl italic tracking-tighter">ĐĂNG NHẬP</h2>
+            <p id="auth-desc" class="text-[9px] text-gray-500 mb-6 uppercase font-bold tracking-widest">Hệ thống quản lý File VIP</p>
+            
+            <div class="space-y-4">
+                <div class="relative">
+                    <input type="text" id="u-name" placeholder="Tài khoản..." class="w-full bg-white/5 border border-white/10 p-4 rounded-2xl outline-none focus:border-blue-500 text-sm transition-all">
+                </div>
+                <div class="relative">
+                    <input type="password" id="u-pass" placeholder="Mật khẩu..." class="w-full bg-white/5 border border-white/10 p-4 rounded-2xl outline-none focus:border-blue-500 text-sm transition-all">
+                </div>
+            </div>
+
+            <button onclick="handleAuth()" id="auth-btn" class="w-full bg-blue-600 py-4 rounded-2xl font-black btn-click uppercase text-[11px] mt-8 shadow-lg shadow-blue-600/30 tracking-widest">VÀO HỆ THỐNG</button>
+            
+            <div class="mt-8 pt-6 border-t border-white/5">
+                <p id="auth-toggle" class="text-[10px] text-gray-400 uppercase font-black">
+                    Chưa có tài khoản? <span class="text-blue-500 cursor-pointer" onclick="switchMode('reg')">Đăng ký ngay</span>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div id="main-content" class="hidden h-screen flex flex-col">
+        <div class="marquee-container">
+            <div class="marquee-text">
+                ADMIN: NGUYỄN QUỐC HUY | ZALO HỖ TRỢ: 0397208110 | HỆ THỐNG TỰ ĐỘNG 24/7 | BẢN QUYỀN THUỘC VỀ SENSIOBMAX 2026
+            </div>
+        </div>
+
+        <header class="p-5 flex items-center justify-between glass sticky top-0 z-50">
+            <div class="flex items-center gap-4">
+                <button onclick="toggleSidebar()" class="text-2xl text-blue-500 btn-click">☰</button>
+                <div>
+                    <h1 class="text-lg font-black italic text-blue-500 font-cyber leading-none">SENSIOBMAX</h1>
+                    <p class="text-[7px] text-green-500 font-bold uppercase mt-1 tracking-tighter">● Online: <span id="online-count">4.821</span></p>
+                </div>
+            </div>
+            <div class="text-right">
+                <p class="text-[11px] font-black text-yellow-500 italic" id="user-balance">0đ</p>
+                <div class="flex gap-2 justify-end mt-1">
+                    <button onclick="showAdmin()" class="bg-red-600 px-2 py-0.5 rounded-[4px] text-[7px] font-black uppercase italic">Admin</button>
+                </div>
+            </div>
+        </header>
+
+        <main class="p-4 flex-1 overflow-y-auto space-y-6">
+            
+            <div class="glass p-5 rounded-[2.5rem] border-b-4 border-blue-600 shadow-2xl">
+                <div class="flex justify-between items-center mb-6">
+                    <div>
+                        <p class="text-[8px] font-black text-blue-400 uppercase italic tracking-widest">Dòng tiền hệ thống</p>
+                        <p class="text-xl font-black font-cyber text-white mt-1" id="system-money">34.820.000đ</p>
+                    </div>
+                    <div class="bg-blue-600/10 p-2 rounded-xl">
+                        <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
+                    </div>
+                </div>
+                <div id="chart" class="flex items-end justify-between h-20 px-1 gap-1.5">
+                    </div>
+            </div>
+
+            <div class="flex items-center gap-3 px-2">
+                <div class="h-[1px] flex-1 bg-white/10"></div>
+                <p class="text-[9px] font-black uppercase text-gray-500 tracking-[0.3em]">Kho File VIP</p>
+                <div class="h-[1px] flex-1 bg-white/10"></div>
+            </div>
+
+            <div id="product-list" class="space-y-4 pb-32">
+                </div>
+        </main>
+
+        <nav class="fixed bottom-0 left-0 right-0 glass grid grid-cols-4 p-3 border-t border-blue-600/20 z-50">
+            <button onclick="showQR()" class="flex flex-col items-center gap-1 btn-click">
+                <div class="p-1.5 rounded-lg bg-blue-600/10"><svg class="w-4 h-4 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 4v16m8-8H4" stroke-width="2" stroke-linecap="round"/></svg></div>
+                <p class="text-[8px] font-black text-gray-400 uppercase">Nạp Tiền</p>
+            </button>
+            <button onclick="showCard()" class="flex flex-col items-center gap-1 btn-click">
+                <div class="p-1.5 rounded-lg bg-green-600/10"><svg class="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" stroke-width="2"/></svg></div>
+                <p class="text-[8px] font-black text-gray-400 uppercase">Thẻ Cào</p>
+            </button>
+            <button onclick="showCTV()" class="flex flex-col items-center gap-1 btn-click">
+                <div class="p-1.5 rounded-lg bg-yellow-600/10"><svg class="w-4 h-4 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" stroke-width="2"/></svg></div>
+                <p class="text-[8px] font-black text-gray-400 uppercase">CTV</p>
+            </button>
+            <button onclick="location.href='https://zalo.me/0397208110'" class="flex flex-col items-center gap-1 btn-click">
+                <div class="p-1.5 rounded-lg bg-red-600/10"><svg class="w-4 h-4 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z" stroke-width="2"/></svg></div>
+                <p class="text-[8px] font-black text-gray-400 uppercase">Liên Hệ</p>
+            </button>
+        </nav>
+    </div>
+
+    <div id="qr-box" class="popup hidden" onclick="closePopup('qr-box')">
+        <div class="glass w-[85%] max-w-[360px] p-6 rounded-[3rem] text-center neon-border" onclick="event.stopPropagation()">
+            <h3 class="font-cyber text-blue-500 font-black mb-2 uppercase text-sm italic">THANH TOÁN QR</h3>
+            <p class="text-[8px] text-gray-500 uppercase font-bold mb-6 italic">Quét mã để nạp tiền tự động</p>
+            
+            <div class="relative bg-white p-3 rounded-2xl mb-6 shadow-2xl">
+                <img id="qr-img" src="https://img.vietqr.io/image/MB-0397208110-compact2.jpg?amount=50000&addInfo=NAP%20TIEN%20SENSI" class="w-full h-auto rounded-lg">
+                <div class="absolute inset-0 border-4 border-blue-600/20 rounded-2xl pointer-events-none"></div>
+            </div>
+
+            <div class="bg-blue-600/10 p-4 rounded-xl border border-blue-600/20 mb-6">
+                <p class="text-[8px] text-gray-400 uppercase font-black">Chủ tài khoản:</p>
+                <p class="text-xs font-black text-blue-500 mt-1 italic">NGUYỄN QUỐC HUY</p>
+            </div>
+
+            <button onclick="closePopup('qr-box')" class="w-full bg-blue-600 py-4 rounded-xl font-black text-[10px] btn-click uppercase">ĐÃ CHUYỂN KHOẢN</button>
+        </div>
+    </div>
+
+    <div id="ctv-box" class="popup hidden" onclick="closePopup('ctv-box')">
+        <div class="glass w-[85%] max-w-[350px] p-8 rounded-[3rem] text-center neon-border" onclick="event.stopPropagation()">
+            <div class="w-16 h-16 bg-yellow-500/20 rounded-full flex items-center justify-center mx-auto mb-6">
+                <svg class="w-8 h-8 text-yellow-500" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+            </div>
+            <h3 class="font-cyber text-yellow-500 font-black mb-4 uppercase text-sm italic">CỘNG TÁC VIÊN VIP</h3>
+            <p class="text-[10px] text-gray-400 font-bold uppercase leading-relaxed italic">
+                Điều kiện để mở khóa CTV:<br>
+                <span class="text-white text-xs mt-2 block">Nạp tích lũy trên 1.000.000đ</span>
+            </p>
+            <div class="mt-8 bg-white/5 p-4 rounded-xl text-[9px] font-bold text-gray-500 italic">
+                Quyền lợi: Giảm giá 50% tất cả File VIP
+            </div>
+            <button onclick="closePopup('ctv-box')" class="w-full bg-yellow-600 py-4 rounded-xl font-black text-[10px] btn-click uppercase mt-8">ĐÓNG</button>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+    <script>
+        // Khởi tạo hạt bụi nền
+        particlesJS("particles-js", { particles: { number: { value: 60 }, color: { value: "#3b82f6" }, opacity: { value: 0.4 }, size: { value: 2 }, move: { enable: true, speed: 4 } } });
+
+        let currentMode = 'login';
+        let userBalance = 0;
+        let userData = null;
+
+        // DANH SÁCH FILE - HUY GIỮ NGUYÊN LINK CỦA HUY
+        const products = [
+            { id: 1, name: "🎁 FAKE LAG FREE V1", price: 0, link: "https://www.mediafire.com/file/free1", color: "border-green-600" },
+            { id: 2, name: "🎁 FAKE LAG FREE V2", price: 0, link: "https://www.mediafire.com/file/free2", color: "border-green-600" },
+            { id: 3, name: "🎁 FAKE LAG FREE V3", price: 0, link: "https://www.mediafire.com/file/free3", color: "border-green-600" },
+            { id: 4, name: "🎯 AIMLOCK ADR VIP 50K", price: 50000, link: "https://www.mediafire.com/file/50k", color: "border-blue-600" },
+            { id: 5, name: "🎯 AIMBODY VIP 50K", price: 50000, link: "https://www.mediafire.com/file/50k", color: "border-blue-600" },
+            { id: 6, name: "🔥 FLUORITE HEAD 100K", price: 100000, link: "https://www.mediafire.com/file/100k", color: "border-blue-600" },
+            { id: 7, name: "🔥 AIMLOCK 100% HEAD 100K", price: 100000, link: "https://www.mediafire.com/file/100k", color: "border-blue-600" },
+            { id: 8, name: "💎 AIMLOCK PRO V2 200K", price: 200000, link: "https://www.mediafire.com/file/200k", color: "border-blue-600" },
+            { id: 9, name: "💎 AIMBODY SILENT 200K", price: 200000, link: "https://www.mediafire.com/file/200k", color: "border-blue-600" },
+            { id: 10, name: "👑 ULTIMATE ANTIBAN 500K", price: 500000, link: "https://www.mediafire.com/file/500k", color: "border-blue-600" }
+        ];
+
+        // Dữ liệu ảo
+        const fakeUserNames = ["Huy FF", "Tuấn Mod", "Sơn Gaming", "Đức Pro", "Linh Sensi", "Hoàng ADR", "Khánh Mod"];
+        const fakeProdNames = ["AIMLOCK 50K", "FILE VIP 100K", "ULTIMATE 500K", "AIMBODY 200K", "FAKE LAG FREE"];
+
+        // Hàm xử lý Đăng nhập / Đăng ký
+        function switchMode(mode) {
+            currentMode = mode;
+            document.getElementById('auth-title').innerText = mode === 'login' ? 'ĐĂNG NHẬP' : 'ĐĂNG KÝ';
+            document.getElementById('auth-btn').innerText = mode === 'login' ? 'VÀO HỆ THỐNG' : 'TẠO TÀI KHOẢN';
+            document.getElementById('auth-toggle').innerHTML = mode === 'login' ? 
+                'Chưa có tài khoản? <span class="text-blue-500 cursor-pointer" onclick="switchMode(\'reg\')">Đăng ký ngay</span>' : 
+                'Đã có tài khoản? <span class="text-blue-500 cursor-pointer" onclick="switchMode(\'login\')">Đăng nhập ngay</span>';
+        }
+
+        function handleAuth() {
+            const user = document.getElementById('u-name').value.trim();
+            const pass = document.getElementById('u-pass').value.trim();
+
+            if (!user || !pass) { alert("VUI LÒNG NHẬP ĐỦ THÔNG TIN!"); return; }
+
+            if (currentMode === 'reg') {
+                localStorage.setItem('user_' + user, pass);
+                alert("ĐĂNG KÝ THÀNH CÔNG! VUI LÒNG ĐĂNG NHẬP.");
+                switchMode('login');
+            } else {
+                const savedPass = localStorage.getItem('user_' + user);
+                // Admin bypass hoặc mật khẩu đúng
+                if ((user === "adminhuy" && pass === "quochuy_master_2026") || (savedPass && savedPass === pass)) {
+                    userData = user;
+                    document.getElementById('auth-screen').classList.add('hidden');
+                    document.getElementById('main-content').classList.remove('hidden');
+                    initDashboard();
+                } else {
+                    alert("SAI TÀI KHOẢN HOẶC MẬT KHẨU!");
+                }
+            }
+        }
+
+        // Khởi tạo Dashboard
+        function initDashboard() {
+            renderProducts();
+            startSystemStats();
+            startToasts();
+            updateBalance();
+        }
+
+        // Hiển thị sản phẩm với số liệu ngẫu nhiên
+        function renderProducts() {
+            const list = document.getElementById('product-list');
+            list.innerHTML = "";
+            products.forEach(item => {
+                const isFree = item.price === 0;
+                // Ngẫu nhiên Online từ 1k-3k
+                const online = (Math.floor(Math.random() * 2000) + 1000).toLocaleString();
+                // Ngẫu nhiên lượt bán từ 5k-20k
+                const sales = (Math.floor(Math.random() * 15000) + 5000).toLocaleString();
+                
+                list.innerHTML += `
+                    <div class="glass p-6 rounded-[2.5rem] flex justify-between items-center product-card ${item.color}">
+                        <div class="flex-1 pr-4">
+                            <p class="text-[11px] font-black uppercase italic tracking-tighter text-white">${item.name}</p>
+                            <p class="text-[10px] ${isFree ? 'text-green-500' : 'text-blue-500'} font-black mt-1 italic">
+                                ${isFree ? 'FREE DOWNLOAD' : item.price.toLocaleString() + 'đ'}
+                            </p>
+                            <div class="flex flex-wrap gap-x-4 gap-y-1 text-[7px] text-gray-500 font-black mt-3 uppercase italic">
+                                <span>🛒 ĐÃ BÁN: ${sales}</span>
+                                <span>👥 DÙNG: ${online}</span>
+                                <span class="text-green-500">● CÒN HÀNG</span>
+                            </div>
+                        </div>
+                        <button onclick="handleBuy(${item.price}, '${item.name}', '${item.link}')" class="${isFree ? 'bg-green-600 shadow-green-600/20' : 'bg-blue-600 shadow-blue-600/20'} px-6 py-3 rounded-2xl text-[9px] font-black btn-click shadow-lg">
+                            ${isFree ? 'TẢI NGAY' : 'MUA FILE'}
+                        </button>
+                    </div>`;
+            });
+        }
+
+        function handleBuy(price, name, link) {
+            if (price === 0) {
+                window.location.href = link;
+                return;
+            }
+            if (userBalance >= price) {
+                userBalance -= price;
+                updateBalance();
+                alert(`THANH TOÁN THÀNH CÔNG: ${name}\nBản quyền: NGUYỄN QUỐC HUY`);
+                window.location.href = link;
+            } else {
+                alert("SỐ DƯ KHÔNG ĐỦ! VUI LÒNG NẠP TIỀN QUA QR.");
+                showQR();
+            }
+        }
+
+        // Quản lý số dư
+        function updateBalance() {
+            document.getElementById('user-balance').innerText = userBalance.toLocaleString() + "đ";
+        }
+
+        // Hệ thống khách ảo (Dưới màn hình)
+        function startToasts() {
+            setInterval(() => {
+                const toast = document.getElementById('buy-toast');
+                const text = document.getElementById('toast-text');
+                const name = fakeUserNames[Math.floor(Math.random() * fakeUserNames.length)];
+                const prod = fakeProdNames[Math.floor(Math.random() * fakeProdNames.length)];
+                
+                text.innerText = `${name} VỪA MUA THÀNH CÔNG ${prod}`;
+                toast.classList.add('show-toast');
+                setTimeout(() => { toast.classList.remove('show-toast'); }, 3000);
+            }, 7000);
+        }
+
+        // Biểu đồ và Stats hệ thống
+        function startSystemStats() {
+            const chart = document.getElementById('chart');
+            chart.innerHTML = "";
+            for(let i=0; i<18; i++) {
+                chart.innerHTML += `<div class="w-2 bg-blue-600 rounded-t-lg transition-all duration-700" style="height: ${Math.random()*70+20}%"></div>`;
+            }
+            
+            setInterval(() => {
+                document.getElementById('online-count').innerText = (Math.floor(Math.random() * 2000) + 4000).toLocaleString();
+                document.getElementById('system-money').innerText = (Math.floor(Math.random() * 20000000) + 30000000).toLocaleString() + "đ";
+                chart.querySelectorAll('div').forEach(bar => {
+                    bar.style.height = (Math.random() * 70 + 20) + '%';
+                });
+            }, 4000);
+        }
+
+        // Popup Handlers
+        function showQR() { document.getElementById('qr-box').classList.remove('hidden'); }
+        function showCard() { alert("HỆ THỐNG GẠCH THẺ ĐANG BẢO TRÌ. VUI LÒNG NẠP QUA BANK/QR!"); }
+        function showCTV() { document.getElementById('ctv-box').classList.remove('hidden'); }
+        function closePopup(id) { document.getElementById(id).classList.add('hidden'); }
+        function toggleSidebar() { alert("Chào Admin Nguyễn Quốc Huy!\nSố Zalo: 0397208110"); }
+
+        // Admin Secret
+        function showAdmin() {
+            const pass = prompt("NHẬP MÃ ADMIN:");
+            if (pass === "quochuy_master_2026") {
+                userBalance += 1000000;
+                updateBalance();
+                alert("ĐÃ KÍCH HOẠT QUYỀN CTV! CỘNG 1 TRIỆU ĐỒNG.");
+            } else {
+                alert("MÃ SAI!");
+            }
+        }
+    </script>
+</body>
+</html>
